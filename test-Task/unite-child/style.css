@@ -1,5 +1,10 @@
 /**
- * Theme Name: Child Theme unite
+ * Theme Name: Child Theme Unite
  * Template: unite
  */
 @import url('../unite/style.css');
+
+#masthead {
+    background-image: url('./assets/images/header.jpg');
+    background-size: cover;
+}

@@ -1,11 +1,20 @@
 <?php
+
+add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
+function theme_enqueue_styles() {
+    wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
+    wp_enqueue_style( 'child-style',
+        get_stylesheet_directory_uri() . '/style.css',
+        array('parent-style')
+    );
+}
+
 function create_post_type() {
     register_post_type( 'acme_films',
         array(
             'labels' => array(
                 // 'name' => __( 'Фильмы' ),
                 //'singular_name' => __( 'Фильмы' ),
-
                 'name'               => _x( 'Фильмы', 'film type general name', 'your-plugin-textdomain' ),
                 'singular_name'      => _x( 'Фильм', 'film type singular name', 'your-plugin-textdomain' ),
                 'menu_name'          => _x( 'Фильмы', 'admin menu', 'your-plugin-textdomain' ),
@@ -192,4 +201,56 @@ function my_extra_fields_update( $post_id ){
     }
     return $post_id;
 }
+//----------------------Хуки
+add_filter('the_content', 'the_end');
+function the_end( $text ){
+    return $text . ' Приятного просмотра!';
+}
+
+/*
+add_filter('the_content', 'the_price');
+function the_price ($content) {
+    $content .= '<p><strong>Стоимость сеанса:</strong>';
+
+    $meta_values = get_post_meta( $post->ID, 'price', true );
+    $content .=  '<span>'. $meta_values .'</span>';
+
+    $content .= '</p>';
+    return $content;
+}*/
+/* $content .= '<p><strong>Дата выхода:</strong>';
+
+ $meta_values = get_post_meta( $post->ID, 'date', true );
+ $content .= '<span>'. $meta_values .'</span>';
+
+ $content .= '</p>';
+ $content .= '</div>';
+
+ return $content;
+}*/
+//-------------------------shortcode---------------
+
+function func_last_films( $atts ){
+    $per_page = 5;
+    $get_posts = new WP_Query(
+        array(
+            'posts_per_page' => 5,
+            'post_type' => 'acme_films'
+        )
+    );
+    $contents = '';
+    if ($get_posts->have_posts()){
+        $contents .= '<div>';
+        while ($get_posts->have_posts()) {
+            $get_posts->the_post();
+            $contents .= '<a href="' . get_the_permalink() . '">';
+            $contents .= '<p>' . get_the_title() .'</p>';
+            $contents .= '</a>';
+        }
+        $contents .= '</div>';
+    }
+    return $contents; // никаких echo, только return
+}
+
+add_shortcode( 'last_films', 'func_last_films' );
 ?>
